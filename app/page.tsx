@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import Navbar from "./components/Navbar";
 
 export default function Home() {
   const router = useRouter();
@@ -54,83 +55,18 @@ export default function Home() {
   return (
     <div className="bg-white text-gray-900">
 
-      {/* NAVBAR */}
-      <nav className="fixed top-0 w-full bg-white shadow-md border-b-2 border-orange-500 z-50 flex justify-between items-center px-6 md:px-10 py-4">        {/* LOGO + NAME */}
-        <div className="flex gap-3">
-          <img
-            src="/Logo/logo.png"
-            alt="logo"
-            className="w-10 h-10 object-contain hover:scale-110 transition"
-          />
-
-          <h1 className="text-xl md:text-2xl font-bold">
-            <span className="text-orange-500">Rent</span>{" "}
-            <span className="text-gray-800">& Ride</span>
-          </h1>
-        </div>
-
-        {/* NAV LINKS */}
-        <div className="hidden md:flex gap-6 text-gray-600">
-          {["Home", "Vehicles", "Booking", "Dashboard"].map((item, i) => (
-            <p
-              key={i}
-              onClick={() => {
-                if (item === "Home") {
-                  window.scrollTo({ top: 0, behavior: "smooth" }); // ✅ stay on page
-                } else {
-                  isLoggedIn
-                    ? router.push(`/${item.toLowerCase()}`)
-                    : router.push("/login");
-                }
-              }
-              }
-              className="cursor-pointer hover:text-orange-500 transition"
-            >
-              {item}
-            </p>
-          ))}
-        </div>
-
-        {/* BUTTONS */}
-        <div className="flex gap-3 items-center">
-
-          {!isLoggedIn ? (
-            <>
-              <button
-                onClick={() => router.push("/login")}
-                className="px-4 py-2 border rounded-md hover:bg-gray-100 transition"
-              >
-                Login
-              </button>
-
-              <button
-                onClick={() => router.push("/register")}
-                className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition"
-              >
-                Register
-              </button>
-            </>
-          ) : (
-            <div className="flex items-center gap-2 cursor-pointer">
-              <img
-                src="/cars/user.png"
-                className="w-10 h-10 rounded-full border-2 border-orange-500"
-              />
-              <span className="hidden md:block font-medium">Profile</span>
-            </div>
-          )}
-
-        </div>
-
-      </nav>
+      <Navbar />
 
       {/* HERO */}
       <section className="pt-32 px-6 md:px-12 min-h-screen flex flex-col md:flex-row items-center justify-between gap-10">
 
         <div className="max-w-xl scroll-animate">
-          <h2 className="text-5xl md:text-6xl font-bold leading-tight">
+          <h2 className="text-5xl md:text-6xl font-bold leading-tight inline-block">
             Drive Your Dreams with{" "}
-            <span className="text-orange-500 inline-block">Rent & Ride</span>
+            <span className="inline-flex items-center gap-3 mt-2 md:mt-0">
+              <img src="/Logo/logo.png" alt="logo" className="w-12 h-12 md:w-14 md:h-14 object-contain" />
+              <span className="text-orange-500">Rent & Ride</span>
+            </span>
           </h2>
 
           <p className="mt-6 text-gray-600 text-xl">
@@ -151,15 +87,32 @@ export default function Home() {
       </section>
 
       {/* HOW IT WORKS */}
-      <section className="px-6 md:px-10 py-20 bg-gray-50 text-center scroll-animate">
-        <h3 className="text-3xl font-bold mb-10">How It Works</h3>
+      <section className="px-6 md:px-10 py-24 bg-gray-50 text-center scroll-animate">
+        <h3 className="text-3xl font-bold mb-4">How It Works</h3>
+        <p className="text-gray-500 max-w-2xl mx-auto mb-12">Getting behind the wheel has never been easier. Follow these three simple steps to start your rental journey right away.</p>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          {["Choose Vehicle", "Book Instantly", "Enjoy Ride"].map((item, i) => (
-            <div key={i} className="p-6 bg-white rounded-xl shadow hover:shadow-xl transition">
-              <h4 className="text-orange-500 font-semibold text-lg">{item}</h4>
-              <p className="text-gray-600 mt-3">
-                Simple, fast and efficient rental experience.
+        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {[
+            {
+              title: "Choose Vehicle",
+              desc: "Browse our expansive collection of premium and practical cars. Check out our detailed AI fraud scores and vehicle specs to find your perfect match with absolutely zero hassle."
+            },
+            {
+              title: "Book Instantly",
+              desc: "Confirm your selection with a secure ID verification, select your dates, and process payments safely with our seamlessly structured checkout system in just a few quick clicks."
+            },
+            {
+              title: "Enjoy Ride",
+              desc: "Pick up your keys and hit the road with complete peace of mind. Return the car securely and leverage our flexible scheduling policies designed around your comfort."
+            }
+          ].map((item, i) => (
+            <div key={i} className="p-8 bg-white rounded-xl shadow-md hover:shadow-2xl transition-all flex flex-col items-center hover:-translate-y-2 border-t-4 border-transparent hover:border-orange-500 duration-300">
+              <div className="w-14 h-14 bg-orange-100 text-orange-500 rounded-full flex items-center justify-center font-bold text-2xl mb-6 shadow-sm">
+                {i + 1}
+              </div>
+              <h4 className="text-gray-800 font-bold text-xl">{item.title}</h4>
+              <p className="text-gray-600 mt-4 leading-relaxed text-sm">
+                {item.desc}
               </p>
             </div>
           ))}

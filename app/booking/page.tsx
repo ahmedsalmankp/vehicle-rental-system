@@ -1,61 +1,220 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Navbar from "../components/Navbar";
+import InputField from "../components/InputField";
+
+interface PastBooking {
+    id: string;
+    carName: string;
+    date: string;
+    status: string;
+}
 
 export default function Booking() {
-
     const [step, setStep] = useState(1);
+    const [isLoading, setIsLoading] = useState(false);
+    const [pastBookings, setPastBookings] = useState<PastBooking[]>([]);
+
+    useEffect(() => {
+        const history = localStorage.getItem("pastBookings");
+        if (history) setPastBookings(JSON.parse(history));
+    }, []);
+
+    const [paymentMethod, setPaymentMethod] = useState("card");
+
+    const handleNext = () => {
+        setIsLoading(true);
+        setTimeout(() => {
+            setIsLoading(false);
+            
+            // If finishing the payment step, mock saving the new booking to history
+            if (step === 2) {
+                const newBooking = {
+                    id: `BKG-${Math.floor(Math.random() * 10000)}`,
+                    carName: "Mercedes-Benz", // Mock hardcoded car for now
+                    date: new Date().toLocaleDateString(),
+                    status: "Confirmed"
+                };
+                const updatedBookings = [newBooking, ...pastBookings];
+                setPastBookings(updatedBookings);
+                localStorage.setItem("pastBookings", JSON.stringify(updatedBookings));
+            }
+
+            setStep(step + 1);
+        }, 800);
+    };
 
     return (
-        <div className="min-h-screen bg-gray-50 p-10">
+        <div className="min-h-screen bg-gray-50 pb-16">
+            <Navbar />
 
-            <h1 className="text-3xl font-bold text-center mb-10">
-                Vehicle Booking
-            </h1>
-
-            {/* STEP 1 - LICENSE */}
-            {step === 1 && (
-                <div className="bg-white p-6 rounded-xl shadow-md max-w-md mx-auto">
-                    <h2 className="font-semibold mb-4">Upload Driving License</h2>
-
-                    <input type="file" className="mb-4" />
-
-                    <button
-                        onClick={() => setStep(2)}
-                        className="w-full bg-orange-500 text-white py-2 rounded-md"
-                    >
-                        Next
-                    </button>
+            <div className="pt-32 px-6 md:px-10 max-w-2xl mx-auto">
+                <div className="text-center mb-10">
+                    <h1 className="text-3xl font-bold text-gray-800">
+                        Secure Checkout
+                    </h1>
+                    <p className="text-gray-500 mt-2">Complete your vehicle booking securely</p>
                 </div>
-            )}
 
-            {/* STEP 2 - PAYMENT */}
-            {step === 2 && (
-                <div className="bg-white p-6 rounded-xl shadow-md max-w-md mx-auto">
-                    <h2 className="font-semibold mb-4">Payment Details</h2>
+                {/* STEP 1 - LICENSE */}
+                {step === 1 && (
+                    <div className="bg-white p-8 rounded-xl shadow-lg border-t-4 border-orange-500 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <h2 className="text-xl font-bold text-gray-800 mb-6">Step 1: Verify Identity</h2>
+                        
+                        <InputField
+                            label="Re-upload Driving License for this Booking"
+                            type="file"
+                            name="licenseId"
+                            value={""}
+                            onChange={() => {}}
+                            required
+                        />
 
-                    <input placeholder="Card Number" className="border p-2 w-full mb-3" />
-                    <input placeholder="Expiry Date" className="border p-2 w-full mb-3" />
-                    <input placeholder="CVV" className="border p-2 w-full mb-3" />
+                        <p className="text-sm text-gray-400 mb-6 italic">We need this to generate your customized trip insurance.</p>
 
-                    <button
-                        onClick={() => setStep(3)}
-                        className="w-full bg-orange-500 text-white py-2 rounded-md"
-                    >
-                        Pay Now
-                    </button>
+                        <button
+                            onClick={handleNext}
+                            disabled={isLoading}
+                            className="w-full bg-orange-500 text-white font-bold py-3 rounded-md hover:bg-orange-600 transition disabled:opacity-75 flex justify-center items-center"
+                        >
+                            {isLoading ? "Verifying..." : "Proceed to Payment"}
+                        </button>
+                    </div>
+                )}
+
+                {/* STEP 2 - PAYMENT */}
+                {step === 2 && (
+                    <div className="bg-white p-8 rounded-xl shadow-lg border-t-4 border-orange-500 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <h2 className="text-xl font-bold text-gray-800 mb-6">Step 2: Payment Details</h2>
+
+                        {/* Payment Method Selector */}
+                        <div className="flex gap-4 mb-6">
+                            <button
+                                onClick={() => setPaymentMethod("card")}
+                                className={`flex-1 py-2 text-center rounded-md border-2 font-semibold transition ${paymentMethod === "card" ? "border-orange-500 text-orange-600 bg-orange-50" : "border-gray-200 text-gray-500 hover:bg-gray-50"}`}
+                            >
+                                💳 Credit/Debit Card
+                            </button>
+                            <button
+                                onClick={() => setPaymentMethod("upi")}
+                                className={`flex-1 py-2 text-center rounded-md border-2 font-semibold transition ${paymentMethod === "upi" ? "border-orange-500 text-orange-600 bg-orange-50" : "border-gray-200 text-gray-500 hover:bg-gray-50"}`}
+                            >
+                                📱 UPI (PhonePe/GPay)
+                            </button>
+                        </div>
+
+                        {paymentMethod === "card" ? (
+                            <div className="space-y-4">
+                                <InputField
+                                    label="Cardholder Name"
+                                    name="cardName"
+                                    value={""}
+                                    onChange={() => {}}
+                                    placeholder="John Doe"
+                                    required
+                                />
+                                
+                                <InputField
+                                    label="Card Number"
+                                    name="cardNumber"
+                                    value={""}
+                                    onChange={() => {}}
+                                    placeholder="XXXX XXXX XXXX XXXX"
+                                    required
+                                />
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <InputField
+                                        label="Expiry Date"
+                                        name="expiry"
+                                        value={""}
+                                        onChange={() => {}}
+                                        placeholder="MM/YY"
+                                        required
+                                    />
+                                    <InputField
+                                        label="CVV"
+                                        type="password"
+                                        name="cvv"
+                                        value={""}
+                                        onChange={() => {}}
+                                        placeholder="123"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                <InputField
+                                    label="UPI ID"
+                                    name="upiId"
+                                    value={""}
+                                    onChange={() => {}}
+                                    placeholder="example@ybl / username@okaxis"
+                                    required
+                                />
+                                <div className="bg-blue-50 text-blue-800 p-4 rounded-md text-sm">
+                                    Open your UPI App (PhonePe, Google Pay, Paytm) to approve the payment request after you click Pay.
+                                </div>
+                            </div>
+                        )}
+
+                        <button
+                            onClick={handleNext}
+                            disabled={isLoading}
+                            className="w-full bg-orange-500 text-white font-bold py-3 rounded-md mt-6 hover:bg-orange-600 transition disabled:opacity-75"
+                        >
+                            {isLoading ? "Processing..." : "Pay Securely Now"}
+                        </button>
+                    </div>
+                )}
+
+                {/* STEP 3 - SUCCESS */}
+                {step === 3 && (
+                    <div className="bg-white p-10 rounded-xl shadow-lg border-t-4 border-green-500 text-center animate-in zoom-in duration-500">
+                        <div className="text-green-500 text-6xl mb-4">🎉</div>
+                        <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                            Booking Confirmed!
+                        </h2>
+                        <p className="text-gray-600">
+                            Your vehicle is ready. Check your email for further details.
+                        </p>
+                        <button
+                            onClick={() => window.location.href = "/dashboard"}
+                            className="mt-8 px-6 py-2 border border-green-500 text-green-600 font-bold rounded-md hover:bg-green-50 transition"
+                        >
+                            Go to Dashboard
+                        </button>
+                    </div>
+                )}
+
+                {/* PAST HISTORY SECTION */}
+                <div className="mt-16">
+                    <h3 className="text-2xl font-bold text-gray-800 mb-6 border-b pb-2">Past Rental History</h3>
+                    
+                    {pastBookings.length === 0 ? (
+                        <div className="bg-white p-6 rounded-xl shadow-sm text-center border border-dashed border-gray-300">
+                            <p className="text-gray-500 italic">No history available.</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {pastBookings.map((bkg) => (
+                                <div key={bkg.id} className="bg-white p-4 rounded-xl shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center border-l-4 border-orange-500">
+                                    <div>
+                                        <h4 className="font-bold text-gray-800">{bkg.carName}</h4>
+                                        <p className="text-sm text-gray-500">Booking ID: {bkg.id} • {bkg.date}</p>
+                                    </div>
+                                    <span className="mt-2 md:mt-0 px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">
+                                        {bkg.status}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
-            )}
 
-            {/* STEP 3 - SUCCESS */}
-            {step === 3 && (
-                <div className="text-center">
-                    <h2 className="text-2xl text-green-600 font-bold">
-                        Booking Successful 🎉
-                    </h2>
-                </div>
-            )}
-
+            </div>
         </div>
     );
 }
