@@ -70,7 +70,7 @@ export default function Register() {
             // Mock auto-login
             localStorage.setItem("user", JSON.stringify({ name: formData.fullName, email: formData.email, token: "fake-jwt-123" }));
             window.dispatchEvent(new Event("authStatusChanged"));
-            
+
             router.push(redirectUrl);
         } catch (err: any) {
             setError("Registration failed. Please try again.");
@@ -153,7 +153,7 @@ export default function Register() {
                     <hr className="border-gray-200" />
 
                     <h3 className="text-lg font-semibold text-gray-700">Driving License Details</h3>
-                    
+
                     <div className="grid md:grid-cols-2 gap-4">
                         <InputField
                             label="License Number"

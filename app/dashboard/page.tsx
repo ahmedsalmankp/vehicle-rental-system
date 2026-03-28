@@ -73,7 +73,7 @@ export default function Dashboard() {
                 {/* GRAPH SECTION */}
                 <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 mt-8">
                     <h3 className="font-bold text-gray-800 mb-6 border-b pb-2">Rental Activity Overview (Amount Paid)</h3>
-                    
+
                     <div className="h-64 flex items-end justify-between gap-2 pt-4 px-2">
                         {/* CSS MOCK CHART */}
                         {[

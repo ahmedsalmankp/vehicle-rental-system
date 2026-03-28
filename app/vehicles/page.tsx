@@ -195,10 +195,10 @@ export default function Vehicles() {
                                         <div className="flex flex-col items-center justify-center relative w-12 h-12 mb-3">
                                             <svg className="w-12 h-12 transform -rotate-90">
                                                 <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-gray-200" />
-                                                <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="4" fill="transparent" 
-                                                    strokeDasharray="125.6" 
+                                                <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="4" fill="transparent"
+                                                    strokeDasharray="125.6"
                                                     strokeDashoffset={125.6 - (125.6 * car.fraudScore) / 100}
-                                                    className={car.fraudScore >= 90 ? "text-green-500" : "text-orange-400"} 
+                                                    className={car.fraudScore >= 90 ? "text-green-500" : "text-orange-400"}
                                                     strokeLinecap="round" />
                                             </svg>
                                             <span className="absolute text-[10px] font-bold text-gray-800">{car.fraudScore}%</span>

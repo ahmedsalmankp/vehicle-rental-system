@@ -15,7 +15,7 @@ export default function Navbar() {
             setIsLoggedIn(!!user);
         };
         checkUser();
-        
+
         // Listen for custom login/logout events to update immediately 
         window.addEventListener("authStatusChanged", checkUser);
         return () => window.removeEventListener("authStatusChanged", checkUser);
@@ -90,7 +90,7 @@ export default function Navbar() {
                         </button>
                     </>
                 ) : (
-                    <div 
+                    <div
                         className="flex items-center gap-2 cursor-pointer group"
                         onClick={() => router.push("/dashboard")} // Or Profile if that page existed, sending to Dashboard as it has Profile settings
                     >

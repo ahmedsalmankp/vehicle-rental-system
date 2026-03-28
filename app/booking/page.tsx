@@ -27,7 +27,7 @@ export default function Booking() {
         setIsLoading(true);
         setTimeout(() => {
             setIsLoading(false);
-            
+
             // If finishing the payment step, mock saving the new booking to history
             if (step === 2) {
                 const newBooking = {
@@ -61,13 +61,13 @@ export default function Booking() {
                 {step === 1 && (
                     <div className="bg-white p-8 rounded-xl shadow-lg border-t-4 border-orange-500 animate-in fade-in slide-in-from-bottom-4 duration-500">
                         <h2 className="text-xl font-bold text-gray-800 mb-6">Step 1: Verify Identity</h2>
-                        
+
                         <InputField
                             label="Re-upload Driving License for this Booking"
                             type="file"
                             name="licenseId"
                             value={""}
-                            onChange={() => {}}
+                            onChange={() => { }}
                             required
                         />
 
@@ -110,16 +110,16 @@ export default function Booking() {
                                     label="Cardholder Name"
                                     name="cardName"
                                     value={""}
-                                    onChange={() => {}}
+                                    onChange={() => { }}
                                     placeholder="John Doe"
                                     required
                                 />
-                                
+
                                 <InputField
                                     label="Card Number"
                                     name="cardNumber"
                                     value={""}
-                                    onChange={() => {}}
+                                    onChange={() => { }}
                                     placeholder="XXXX XXXX XXXX XXXX"
                                     required
                                 />
@@ -129,7 +129,7 @@ export default function Booking() {
                                         label="Expiry Date"
                                         name="expiry"
                                         value={""}
-                                        onChange={() => {}}
+                                        onChange={() => { }}
                                         placeholder="MM/YY"
                                         required
                                     />
@@ -138,7 +138,7 @@ export default function Booking() {
                                         type="password"
                                         name="cvv"
                                         value={""}
-                                        onChange={() => {}}
+                                        onChange={() => { }}
                                         placeholder="123"
                                         required
                                     />
@@ -150,7 +150,7 @@ export default function Booking() {
                                     label="UPI ID"
                                     name="upiId"
                                     value={""}
-                                    onChange={() => {}}
+                                    onChange={() => { }}
                                     placeholder="example@ybl / username@okaxis"
                                     required
                                 />
@@ -192,7 +192,7 @@ export default function Booking() {
                 {/* PAST HISTORY SECTION */}
                 <div className="mt-16">
                     <h3 className="text-2xl font-bold text-gray-800 mb-6 border-b pb-2">Past Rental History</h3>
-                    
+
                     {pastBookings.length === 0 ? (
                         <div className="bg-white p-6 rounded-xl shadow-sm text-center border border-dashed border-gray-300">
                             <p className="text-gray-500 italic">No history available.</p>

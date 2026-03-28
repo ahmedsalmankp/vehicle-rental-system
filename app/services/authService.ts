@@ -6,7 +6,7 @@ export const authService = {
         return new Promise((resolve, reject) => {
             setTimeout(() => {
                 if (credentials.emailOrPhone && credentials.password) {
-                    
+
                     // Check if we already have a registered user in local storage so we don't overwrite their name
                     const existingUserRaw = localStorage.getItem("user");
                     let name = "Demo User";
@@ -16,7 +16,7 @@ export const authService = {
                             if (parsed.email === credentials.emailOrPhone && parsed.name) {
                                 name = parsed.name; // Keep their registered name!
                             }
-                        } catch(e) {}
+                        } catch (e) { }
                     }
 
                     const user = {
@@ -48,7 +48,7 @@ export const authService = {
     logout: () => {
         localStorage.removeItem("user");
     },
-    
+
     // Check auth status
     isAuthenticated: () => {
         if (typeof window !== "undefined") {
