@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { authService } from "../services/authService";
 import InputField from "../components/InputField";
 
-export default function Register() {
+function RegisterForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const redirectUrl = searchParams.get("redirect") || "/vehicles";
@@ -66,14 +66,24 @@ export default function Register() {
         setIsLoading(true);
 
         try {
-            await authService.register({ ...formData, licenseImage: licenseImage?.name });
-            // Mock auto-login
-            localStorage.setItem("user", JSON.stringify({ name: formData.fullName, email: formData.email, token: "fake-jwt-123" }));
-            window.dispatchEvent(new Event("authStatusChanged"));
+            const res = await fetch("http://localhost:5000/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ email: formData.email, password: formData.password })
+            });
 
-            router.push(redirectUrl);
+            const data = await res.json();
+            
+            if (!res.ok) {
+                throw new Error(data.error || "Registration failed. Please try again.");
+            }
+
+            alert("Registration successful! Please sign in.");
+            router.push("/login");
         } catch (err: any) {
-            setError("Registration failed. Please try again.");
+            setError(err.message || "Registration failed. Please try again.");
         } finally {
             setIsLoading(false);
         }
@@ -239,5 +249,13 @@ export default function Register() {
                 </p>
             </div>
         </div>
+    );
+}
+
+export default function Register() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+            <RegisterForm />
+        </Suspense>
     );
 }

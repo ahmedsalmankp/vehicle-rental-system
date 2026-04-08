@@ -92,13 +92,15 @@ export default function Navbar() {
                 ) : (
                     <div
                         className="flex items-center gap-2 cursor-pointer group"
-                        onClick={() => router.push("/dashboard")} // Or Profile if that page existed, sending to Dashboard as it has Profile settings
+                        onClick={() => router.push("/dashboard")} // Sending back to dashboard as requested, no new pages
                     >
-                        <img
-                            src="/cars/user.png"
-                            alt="User Profile"
-                            className="w-10 h-10 rounded-full border-2 border-orange-500 group-hover:shadow-[0_0_10px_rgba(249,115,22,0.8)] transition"
-                        />
+                        <svg
+                            className="w-10 h-10 p-1.5 rounded-full border-2 border-orange-500 text-orange-500 group-hover:shadow-[0_0_10px_rgba(249,115,22,0.8)] transition bg-orange-50"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                        >
+                            <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                        </svg>
                         <span className="hidden md:block font-medium group-hover:text-orange-500">Profile</span>
                     </div>
                 )}

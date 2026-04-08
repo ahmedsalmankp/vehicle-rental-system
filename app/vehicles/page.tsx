@@ -5,12 +5,24 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "../components/Navbar";
 
-export default function Vehicles() {
+interface Vehicle {
+    _id: string;
+    name: string;
+    price: string | number;
+    img: string;
+    location: string;
+    mileage: string;
+    specs: string;
+    rating: string;
+    fraudScore: number;
+}
 
+export default function Vehicles() {
     const router = useRouter();
 
     const [searchLocation, setSearchLocation] = useState("");
     const [searchCar, setSearchCar] = useState("");
+    const [vehicles, setVehicles] = useState<Vehicle[]>([]);
 
     const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
 
@@ -21,104 +33,32 @@ export default function Vehicles() {
         } else {
             router.replace("/login?redirect=/vehicles");
         }
+
+        // Fetch vehicles from API
+        fetch("http://localhost:5000/vehicles")
+            .then(res => res.json())
+            .then(data => {
+                // Map the data to include default images and properties if they are missing
+                const formattedVehicles = data.map((v: any) => ({
+                    ...v,
+                    img: v.img || "/cars/Audi-A6.webp", // Default image
+                    location: v.location || "Hyderabad, Telangana",
+                    mileage: v.mileage || "12 km/l",
+                    specs: v.specs || "Auto, Petrol",
+                    rating: v.rating || "4.8",
+                    fraudScore: v.fraudScore || 95,
+                    price: `₹${v.price}/day`
+                }));
+                setVehicles(formattedVehicles);
+            })
+            .catch(err => console.error("Error fetching vehicles:", err));
+
     }, [router]);
 
-    const vehicles = [
-        {
-            name: "Audi A6",
-            img: "/cars/Audi-A6.webp",
-            price: "₹1800/day",
-            rating: "4.8",
-            location: "Hyderabad, Telangana",
-            mileage: "12 km/l", specs: "Auto, Diesel", fraudScore: 98
-        },
-        {
-            name: "BMW",
-            img: "/cars/bmw.webp",
-            price: "₹2000/day",
-            rating: "4.9",
-            location: "Chennai, Tamil Nadu",
-            mileage: "11 km/l", specs: "Auto, Petrol", fraudScore: 95
-        },
-        {
-            name: "Lamborghini",
-            img: "/cars/Lamborghini.webp",
-            price: "₹5000/day",
-            rating: "5.0",
-            location: "Kochi, Kerala",
-            mileage: "6 km/l", specs: "Auto, Petrol", fraudScore: 99
-        },
-        {
-            name: "Maruti Brezza",
-            img: "/cars/brezza.avif",
-            price: "₹900/day",
-            rating: "4.5",
-            location: "Vijayawada, Andhra Pradesh",
-            mileage: "19 km/l", specs: "Manual, Petrol", fraudScore: 89
-        },
-        {
-            name: "Rolls Royce",
-            img: "/cars/rollsroyce.avif",
-            price: "₹7000/day",
-            rating: "5.0",
-            location: "Hyderabad, Telangana",
-            mileage: "5 km/l", specs: "Auto, Petrol", fraudScore: 99
-        },
-        {
-            name: "Innova",
-            img: "/cars/innova.webp",
-            price: "₹1500/day",
-            rating: "4.6",
-            location: "Coimbatore, Tamil Nadu",
-            mileage: "14 km/l", specs: "Manual, Diesel", fraudScore: 92
-        },
-        {
-            name: "Mercedes-Benz",
-            img: "/cars/benz.avif",
-            price: "₹2500/day",
-            rating: "4.7",
-            location: "Bangalore, Karnataka",
-            mileage: "10 km/l", specs: "Auto, Diesel", fraudScore: 96
-        },
-        {
-            name: "Thar",
-            img: "/cars/blackthar.webp",
-            price: "₹1200/day",
-            rating: "4.6",
-            location: "Hyderabad, Telangana",
-            mileage: "13 km/l", specs: "Manual, Diesel", fraudScore: 91
-        },
-        {
-            name: "Thar",
-            img: "/cars/redthar.avif",
-            price: "₹1200/day",
-            rating: "4.6",
-            location: "Hyderabad, Telangana",
-            mileage: "13 km/l", specs: "Auto, Petrol", fraudScore: 90
-        },
-        {
-            name: "Maruti",
-            img: "/cars/maruti.avif",
-            price: "₹800/day",
-            rating: "4.5",
-            location: "Vijayawada, Andhra Pradesh",
-            mileage: "21 km/l", specs: "Manual, Petrol", fraudScore: 88
-        },
-        {
-            name: "Omni",
-            img: "/cars/omni.avif",
-            price: "₹700/day",
-            rating: "4.4",
-            location: "Vijayawada, Andhra Pradesh",
-            mileage: "16 km/l", specs: "Manual, Petrol", fraudScore: 85
-        }
-    ];
-
     const filteredVehicles = vehicles.filter((car) => {
-        return (
-            car.location.toLowerCase().includes(searchLocation.toLowerCase()) &&
-            car.name.toLowerCase().includes(searchCar.toLowerCase())
-        );
+        const locMatch = (car.location || "").toLowerCase().includes(searchLocation.toLowerCase());
+        const nameMatch = (car.name || "").toLowerCase().includes(searchCar.toLowerCase());
+        return locMatch && nameMatch;
     });
 
     if (isLoggedIn === null) {
@@ -207,7 +147,7 @@ export default function Vehicles() {
                                     </div>
 
                                     <button
-                                        onClick={() => router.push("/booking")}
+                                        onClick={() => router.push(`/booking?vehicleId=${car._id}&carName=${encodeURIComponent(car.name)}`)}
                                         className="mt-4 w-full bg-orange-500 text-white font-bold py-2 rounded-md hover:bg-orange-600 transition"
                                     >
                                         Book Now

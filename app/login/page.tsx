@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { authService } from "../services/authService";
 import InputField from "../components/InputField";
 
-export default function Login() {
+function LoginForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const redirectUrl = searchParams.get("redirect") || "/dashboard";
@@ -35,7 +35,21 @@ export default function Login() {
         setError("");
 
         try {
-            await authService.login(formData);
+            const res = await fetch("http://localhost:5000/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ email: formData.emailOrPhone, password: formData.password })
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.message || "Failed to login. Please try again.");
+            }
+
+            localStorage.setItem("user", JSON.stringify(data));
             window.dispatchEvent(new Event("authStatusChanged"));
             router.push(redirectUrl);
         } catch (err: any) {
@@ -118,5 +132,13 @@ export default function Login() {
                 </p>
             </div>
         </div>
+    );
+}
+
+export default function Login() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+            <LoginForm />
+        </Suspense>
     );
 }
