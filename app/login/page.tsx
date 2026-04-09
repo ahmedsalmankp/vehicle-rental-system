@@ -46,7 +46,7 @@ function LoginForm() {
             const data = await res.json();
 
             if (!res.ok) {
-                throw new Error(data.message || "Failed to login. Please try again.");
+                throw new Error(data.error || "Failed to login. Please try again.");
             }
 
             localStorage.setItem("user", JSON.stringify(data));
@@ -106,9 +106,9 @@ function LoginForm() {
                             />
                             Remember Me
                         </label>
-                        <a href="#" className="text-orange-500 hover:text-orange-600 font-semibold transition">
+                        <Link href="/forgot-password" className="text-orange-500 hover:text-orange-600 font-semibold transition">
                             Forgot Password?
-                        </a>
+                        </Link>
                     </div>
 
                     <button

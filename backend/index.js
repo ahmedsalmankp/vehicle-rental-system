@@ -86,6 +86,25 @@ app.post("/login", async (req, res) => {
     }
 });
 
+// Reset Password API
+app.post("/reset-password", async (req, res) => {
+    try {
+        const user = await User.findOne({ email: req.body.email });
+        
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        
+        user.password = req.body.newPassword;
+        await user.save();
+        
+        res.json({ success: true, message: "Password reset successfully" });
+    } catch (err) {
+        res.status(500).json({ error: "Server error during password reset" });
+    }
+});
+
+
 // Get vehicles
 app.get("/vehicles", async (req, res) => {
     const vehicles = await Vehicle.find();
