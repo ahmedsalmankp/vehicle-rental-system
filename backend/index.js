@@ -8,29 +8,45 @@ app.use(express.json());
 
 // MongoDB connection
 mongoose.connect("mongodb://127.0.0.1:27017/rental")
-    .then(() => console.log("MongoDB Connected"))
-    .catch(err => console.log(err));
+    .then(async () => {
+        console.log("MongoDB Connected");
 
+        await insertVehicles(); // ✅ ADD THIS LINE
+    })
+    .catch(err => console.log(err));
 // Models
 const User = require("./models/User");
 const Vehicle = require("./models/Vehicle");
-// Insert dummy vehicles (run once)
-const insertVehicles = async () => {
-    const count = await Vehicle.countDocuments();
-
-    if (count === 0) {
-        await Vehicle.insertMany([
-            { name: "Honda City", price: 2000 },
-            { name: "Swift", price: 1500 },
-            { name: "Creta", price: 2500 }
-        ]);
-
-        console.log("Dummy vehicles added");
-    }
-};
-
-insertVehicles();
 const Booking = require("./models/Booking");
+// Insert dummy vehicles (run once)
+async function insertVehicles() {
+    await Vehicle.deleteMany({});
+
+    await Vehicle.insertMany([
+        { name: "Honda City", price: 2000, image: "/cars/innova.webp", location: "Hyderabad, Telangana" },
+        { name: "Swift", price: 1500, image: "/cars/maruti.avif", location: "Bangalore, Karnataka" },
+        { name: "Creta", price: 2500, image: "/cars/brezza.avif", location: "Kochi, Kerala" },
+        { name: "BMW", price: 4000, image: "/cars/bmw.webp", location: "Vijayawada, Andhra Pradesh" },
+        { name: "Audi A6", price: 3500, image: "/cars/Audi-A6.webp", location: "Vizag, Andhra Pradesh" },
+        { name: "Benz", price: 4200, image: "/cars/benz.avif", location: "Mysore, Karnataka" },
+        { name: "Lamborghini", price: 8000, image: "/cars/Lamborghini.webp", location: "Trivandrum, Kerala" },
+        { name: "Thar", price: 3000, image: "/cars/blackthar.webp", location: "Guntur, Andhra Pradesh" },
+        { name: "Rolls Royce", price: 10000, image: "/cars/rollsroyce.avif", location: "Chennai, Tamil Nadu" },
+        { name: "Maruti Omni", price: 800, image: "/cars/omni.avif", location: "Pune, Maharashtra" },
+        { name: "Red Thar", price: 3200, image: "/cars/redthar.avif", location: "Tirupati, Andhra Pradesh" },
+        { name: "Maruti Brezza", price: 2200, image: "/cars/brezza.avif", location: "Delhi" },
+        { name: "Audi A6", price: 3500, image: "/cars/Audi-A6.webp", location: "Ongole, Andhra Pradesh" },
+        { name: "Benz", price: 4200, image: "/cars/benz.avif", location: "Coorg, Karnataka" },
+        { name: "Lamborghini", price: 8000, image: "/cars/Lamborghini.webp", location: "Palakkad, Kerala" },
+        { name: "Thar", price: 3000, image: "/cars/blackthar.webp", location: "Rayachoti, Andhra Pradesh" },
+        { name: "Rolls Royce", price: 10000, image: "/cars/rollsroyce.avif", location: "Coimbatore, Tamil Nadu" },
+        { name: "Maruti Omni", price: 800, image: "/cars/omni.avif", location: "Madanapalli, Andhra Pradesh" },
+        { name: "Red Thar", price: 3200, image: "/cars/redthar.avif", location: "Madanapalli, Andhra Pradesh" },
+        { name: "Maruti Brezza", price: 2200, image: "/cars/brezza.avif", location: "Delhi" }
+    ]);
+
+    console.log("Vehicles inserted ✅");
+};
 
 // Fraud logic
 function fraudScore(user) {
@@ -90,14 +106,14 @@ app.post("/login", async (req, res) => {
 app.post("/reset-password", async (req, res) => {
     try {
         const user = await User.findOne({ email: req.body.email });
-        
+
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
-        
+
         user.password = req.body.newPassword;
         await user.save();
-        
+
         res.json({ success: true, message: "Password reset successfully" });
     } catch (err) {
         res.status(500).json({ error: "Server error during password reset" });

@@ -27,6 +27,21 @@ function BookingContent() {
     }, []);
 
     const [paymentMethod, setPaymentMethod] = useState("card");
+    const [form, setForm] = useState({
+        cardName: "",
+        cardNumber: "",
+        expiry: "",
+        cvv: "",
+        upiId: "",
+        licenseId: ""
+    });
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        setForm({
+            ...form,
+            [e.target.name]: e.target.value
+        });
+    };
 
     const handleNext = async () => {
         setIsLoading(true);
@@ -42,13 +57,18 @@ function BookingContent() {
                 if (res.ok) {
                     const newBooking = {
                         id: `BKG-${Math.floor(Math.random() * 10000)}`,
-                        carName: carName, 
+                        carName: carName,
                         date: new Date().toLocaleDateString(),
                         status: "Confirmed"
                     };
                     const updatedBookings = [newBooking, ...pastBookings];
                     setPastBookings(updatedBookings);
                     localStorage.setItem("pastBookings", JSON.stringify(updatedBookings));
+
+                    if (paymentMethod === "upi") {
+                        window.location.href = `upi://pay?pa=business@upi&pn=RentRide`;
+                    }
+
                     setStep(step + 1);
                 } else {
                     alert("Failed to book the vehicle.");
@@ -84,8 +104,8 @@ function BookingContent() {
                         label="Re-upload Driving License for this Booking"
                         type="file"
                         name="licenseId"
-                        value={""}
-                        onChange={() => { }}
+                        value={form.licenseId}
+                        onChange={handleChange}
                         required
                     />
 
@@ -126,8 +146,8 @@ function BookingContent() {
                             <InputField
                                 label="Cardholder Name"
                                 name="cardName"
-                                value={""}
-                                onChange={() => { }}
+                                value={form.cardName}
+                                onChange={handleChange}
                                 placeholder="John Doe"
                                 required
                             />
@@ -135,8 +155,8 @@ function BookingContent() {
                             <InputField
                                 label="Card Number"
                                 name="cardNumber"
-                                value={""}
-                                onChange={() => { }}
+                                value={form.cardNumber}
+                                onChange={handleChange}
                                 placeholder="XXXX XXXX XXXX XXXX"
                                 required
                             />
@@ -145,8 +165,8 @@ function BookingContent() {
                                 <InputField
                                     label="Expiry Date"
                                     name="expiry"
-                                    value={""}
-                                    onChange={() => { }}
+                                    value={form.expiry}
+                                    onChange={handleChange}
                                     placeholder="MM/YY"
                                     required
                                 />
@@ -154,8 +174,8 @@ function BookingContent() {
                                     label="CVV"
                                     type="password"
                                     name="cvv"
-                                    value={""}
-                                    onChange={() => { }}
+                                    value={form.cvv}
+                                    onChange={handleChange}
                                     placeholder="123"
                                     required
                                 />
@@ -166,8 +186,8 @@ function BookingContent() {
                             <InputField
                                 label="UPI ID"
                                 name="upiId"
-                                value={""}
-                                onChange={() => { }}
+                                value={form.upiId}
+                                onChange={handleChange}
                                 placeholder="example@ybl / username@okaxis"
                                 required
                             />
@@ -243,4 +263,4 @@ export default function Booking() {
             </Suspense>
         </div>
     );
-}
+}

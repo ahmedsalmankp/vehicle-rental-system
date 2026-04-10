@@ -41,7 +41,7 @@ export default function Vehicles() {
                 // Map the data to include default images and properties if they are missing
                 const formattedVehicles = data.map((v: any) => ({
                     ...v,
-                    img: v.img || "/cars/Audi-A6.webp", // Default image
+                    img: v.image || "/cars/Audi-A6.webp", // Default image
                     location: v.location || "Hyderabad, Telangana",
                     mileage: v.mileage || "12 km/l",
                     specs: v.specs || "Auto, Petrol",
