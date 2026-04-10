@@ -22,13 +22,14 @@ export const authService = {
         // Return fraudScore as well
         const userData = {
             id: user._id || "user_123",
+            _id: user._id, // Explicitly add _id
             name: credentials.emailOrPhone.split("@")[0], // Mock name from email
             email: user.email,
             fraudScore: user.fraudScore || 0,
             token: "fake-jwt-token-123456" // mock token
         };
 
-        localStorage.setItem("user", JSON.stringify(userData));
+        sessionStorage.setItem("user", JSON.stringify(userData));
         return userData;
     },
 
@@ -46,16 +47,16 @@ export const authService = {
             throw new Error(data?.error || "Failed to register");
         }
 
-        return await response.json();
+        return await response.json().catch(() => ({}));
     },
 
     logout: () => {
-        localStorage.removeItem("user");
+        sessionStorage.removeItem("user");
     },
 
     isAuthenticated: () => {
         if (typeof window !== "undefined") {
-            return !!localStorage.getItem("user");
+            return !!sessionStorage.getItem("user");
         }
         return false;
     }

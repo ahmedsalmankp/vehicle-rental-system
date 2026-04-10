@@ -22,9 +22,24 @@ function BookingContent() {
     const [pastBookings, setPastBookings] = useState<PastBooking[]>([]);
 
     useEffect(() => {
-        const history = localStorage.getItem("pastBookings");
-        if (history) setPastBookings(JSON.parse(history));
-    }, []);
+        const storedUser = sessionStorage.getItem("user");
+        if (!storedUser) {
+            window.location.href = `/login?redirect=/booking?vehicleId=${vehicleId}&carName=${encodeURIComponent(carName)}`;
+            return;
+        }
+
+        const user = JSON.parse(storedUser);
+        const userId = user._id || user.id;
+
+        const API_URL = "http://localhost:5000";
+        fetch(`${API_URL}/my-bookings/${userId}`)
+            .then(res => {
+                if (!res.ok) throw new Error("Failed to fetch history");
+                return res.json();
+            })
+            .then(data => setPastBookings(data))
+            .catch(err => console.error("Error fetching history:", err));
+    }, [vehicleId, carName]);
 
     const [paymentMethod, setPaymentMethod] = useState("card");
     const [form, setForm] = useState({
@@ -48,31 +63,41 @@ function BookingContent() {
         if (step === 2) {
             try {
                 // Real API call to book
-                const res = await fetch("http://localhost:5000/book", {
+                const user = JSON.parse(sessionStorage.getItem("user") || "{}");
+                const bookingDate = new Date().toLocaleDateString();
+
+                const API_URL = "http://localhost:5000";
+                const res = await fetch(`${API_URL}/book`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ vehicleId })
+                    body: JSON.stringify({ 
+                        userId: user._id || user.id, // Prefer user._id as requested
+                        vehicleId,
+                        carName,
+                        date: bookingDate,
+                        status: "Confirmed"
+                    })
                 });
 
-                if (res.ok) {
-                    const newBooking = {
-                        id: `BKG-${Math.floor(Math.random() * 10000)}`,
-                        carName: carName,
-                        date: new Date().toLocaleDateString(),
-                        status: "Confirmed"
-                    };
-                    const updatedBookings = [newBooking, ...pastBookings];
-                    setPastBookings(updatedBookings);
-                    localStorage.setItem("pastBookings", JSON.stringify(updatedBookings));
-
-                    if (paymentMethod === "upi") {
-                        window.location.href = `upi://pay?pa=business@upi&pn=RentRide`;
-                    }
-
-                    setStep(step + 1);
-                } else {
-                    alert("Failed to book the vehicle.");
+                if (!res.ok) {
+                    throw new Error("Booking failed");
                 }
+
+                const data = await res.json();
+                const newBooking = {
+                    id: data._id || `BKG-${Math.floor(Math.random() * 10000)}`,
+                    carName: carName,
+                    date: bookingDate,
+                    status: "Confirmed"
+                };
+                const updatedBookings = [newBooking, ...pastBookings];
+                setPastBookings(updatedBookings);
+
+                if (paymentMethod === "upi") {
+                    window.location.href = `upi://pay?pa=business@upi&pn=RentRide`;
+                }
+
+                setStep(step + 1);
             } catch (err) {
                 alert("Error connecting to server.");
             } finally {

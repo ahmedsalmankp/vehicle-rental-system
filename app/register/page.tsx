@@ -27,6 +27,7 @@ function RegisterForm() {
     const [licenseImage, setLicenseImage] = useState<File | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target as HTMLInputElement;
@@ -43,6 +44,9 @@ function RegisterForm() {
     };
 
     const validateForm = () => {
+        let isValid = true;
+        const errors: Record<string, string> = {};
+
         if (formData.password !== formData.confirmPassword) {
             setError("Passwords do not match");
             return false;
@@ -54,32 +58,46 @@ function RegisterForm() {
             return false;
         }
 
-        return true;
+        const dlPattern = /^[A-Z]{2}[0-9]{13}$/;
+        if (!dlPattern.test(formData.licenseNumber.replace(/[\s-]/g, ''))) {
+            errors.licenseNumber = "Please enter a valid Indian Driving License (e.g., MH1212345678900)";
+            isValid = false;
+        }
+
+        if (licenseImage) {
+            const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+            const fileName = licenseImage.name.toLowerCase();
+            
+            if (!allowedTypes.includes(licenseImage.type)) {
+                errors.licenseImage = "Only JPG, PNG or PDF allowed";
+                isValid = false;
+            } else if (!fileName.includes("license") && !fileName.includes("dl") && !fileName.includes("driving")) {
+                errors.licenseImage = "Please upload a valid driving license";
+                isValid = false;
+            } else if (licenseImage.size > 2 * 1024 * 1024) {
+                errors.licenseImage = "File size should be less than 2MB";
+                isValid = false;
+            }
+        } else {
+            errors.licenseImage = "Please upload your driving license";
+            isValid = false;
+        }
+
+        setFieldErrors(errors);
+        return isValid;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
+        setFieldErrors({});
 
         if (!validateForm()) return;
 
         setIsLoading(true);
 
         try {
-            const res = await fetch("http://localhost:5000/register", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ email: formData.email, password: formData.password })
-            });
-
-            const data = await res.json();
-            
-            if (!res.ok) {
-                throw new Error(data.error || "Registration failed. Please try again.");
-            }
-
+            await authService.register(formData);
             alert("Registration successful! Please sign in.");
             router.push("/login");
         } catch (err: any) {
@@ -172,6 +190,7 @@ function RegisterForm() {
                             onChange={handleChange}
                             placeholder="DL-1234567890"
                             required
+                            error={fieldErrors.licenseNumber}
                         />
 
                         <InputField
@@ -191,7 +210,12 @@ function RegisterForm() {
                                 value={""} // File inputs don't use controlled string values
                                 onChange={handleChange}
                                 required
+                                accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
+                                error={fieldErrors.licenseImage}
                             />
+                            <p className="text-xs text-gray-500 mt-2 italic flex items-center">
+                                👉 AI-based validation checks file format and metadata to ensure authenticity of driving license
+                            </p>
                         </div>
                     </div>
 

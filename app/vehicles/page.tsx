@@ -27,16 +27,16 @@ export default function Vehicles() {
     const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
 
     useEffect(() => {
-        const user = localStorage.getItem("user");
-        if (user) {
-            setIsLoggedIn(true);
-        } else {
-            router.replace("/login?redirect=/vehicles");
-        }
+        const user = sessionStorage.getItem("user");
+        setIsLoggedIn(!!user);
 
         // Fetch vehicles from API
-        fetch("http://localhost:5000/vehicles")
-            .then(res => res.json())
+        const API_URL = "http://localhost:5000";
+        fetch(`${API_URL}/vehicles`)
+            .then(res => {
+                if (!res.ok) throw new Error("Failed to fetch vehicles");
+                return res.json();
+            })
             .then(data => {
                 // Map the data to include default images and properties if they are missing
                 const formattedVehicles = data.map((v: any) => ({
@@ -51,7 +51,10 @@ export default function Vehicles() {
                 }));
                 setVehicles(formattedVehicles);
             })
-            .catch(err => console.error("Error fetching vehicles:", err));
+            .catch(err => {
+                console.error("Error fetching vehicles:", err);
+                // Optionally show a user-friendly error message in the UI
+            });
 
     }, [router]);
 

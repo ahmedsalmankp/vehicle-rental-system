@@ -11,14 +11,17 @@ export default function Navbar() {
     useEffect(() => {
         // Authenticate the user on client-side mount
         const checkUser = () => {
-            const user = localStorage.getItem("user");
+            const user = sessionStorage.getItem("user");
             setIsLoggedIn(!!user);
         };
         checkUser();
 
         // Listen for custom login/logout events to update immediately 
         window.addEventListener("authStatusChanged", checkUser);
-        return () => window.removeEventListener("authStatusChanged", checkUser);
+
+        return () => {
+            window.removeEventListener("authStatusChanged", checkUser);
+        };
     }, [pathname]); // Refresh occasionally
 
     const handleNavigation = (item: string) => {

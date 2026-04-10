@@ -18,23 +18,33 @@ export default function Dashboard() {
     const [pastBookings, setPastBookings] = useState<any[]>([]);
 
     useEffect(() => {
-        const stored = localStorage.getItem("user");
-
+        const stored = sessionStorage.getItem("user");
         if (stored) {
-            setUser(JSON.parse(stored));
+            const parsedUser = JSON.parse(stored);
+            setUser(parsedUser);
+            
+            const API_URL = "http://localhost:5000";
+            const userId = parsedUser._id || parsedUser.id;
+            console.log("User ID:", userId);
+
+            fetch(`${API_URL}/my-bookings/${userId}`)
+                .then(res => {
+                    if (!res.ok) throw new Error("Failed to fetch bookings");
+                    return res.json();
+                })
+                .then(data => setPastBookings(data))
+                .catch(err => {
+                    console.error("Error fetching bookings:", err);
+                    // Optionally set an error state here
+                });
         } else {
             window.location.href = "/login";
-        }
-
-        const history = localStorage.getItem("pastBookings");
-        if (history) {
-            setPastBookings(JSON.parse(history));
         }
     }, []);
 
     useEffect(() => {
         const updateUser = () => {
-            const stored = localStorage.getItem("user");
+            const stored = sessionStorage.getItem("user");
             if (stored) setUser(JSON.parse(stored));
         };
 
@@ -46,7 +56,7 @@ export default function Dashboard() {
     }, []);
 
     const handleLogout = () => {
-        localStorage.removeItem("user");
+        sessionStorage.removeItem("user");
         router.push("/login");
     };
 

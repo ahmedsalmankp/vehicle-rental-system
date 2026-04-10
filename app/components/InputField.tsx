@@ -9,6 +9,8 @@ interface InputFieldProps {
     placeholder?: string;
     required?: boolean;
     options?: { label: string; value: string }[];
+    error?: string;
+    accept?: string;
 }
 
 export default function InputField({
@@ -20,6 +22,8 @@ export default function InputField({
     placeholder,
     required = false,
     options,
+    error,
+    accept,
 }: InputFieldProps) {
     const [showPassword, setShowPassword] = useState(false);
 
@@ -54,7 +58,7 @@ export default function InputField({
                         name={name}
                         onChange={onChange}
                         required={required}
-                        accept="image/*"
+                        accept={accept || "image/*"}
                         className="w-full border p-2 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-600 hover:file:bg-orange-100"
                     />
                 ) : (
@@ -79,6 +83,9 @@ export default function InputField({
                     </button>
                 )}
             </div>
+            {error && (
+                <p className="text-red-500 text-sm mt-1">{error}</p>
+            )}
         </div>
     );
 }

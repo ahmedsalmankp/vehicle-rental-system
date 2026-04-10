@@ -14,7 +14,7 @@ export default function Home() {
 
   // 🔐 Check login status
   useEffect(() => {
-    const user = localStorage.getItem("user");
+    const user = sessionStorage.getItem("user");
     if (user) setIsLoggedIn(true);
   }, []);
 

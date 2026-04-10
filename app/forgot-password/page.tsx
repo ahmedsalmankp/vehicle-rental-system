@@ -50,8 +50,9 @@ function ForgotPasswordForm() {
 
         setIsLoading(true);
 
+        const API_URL = "http://localhost:5000";
         try {
-            const res = await fetch("http://localhost:5000/reset-password", {
+            const res = await fetch(`${API_URL}/reset-password`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

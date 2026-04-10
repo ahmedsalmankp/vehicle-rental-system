@@ -129,12 +129,37 @@ app.get("/vehicles", async (req, res) => {
 
 // Book vehicle
 app.post("/book", async (req, res) => {
-    await Booking.create({
-        userId: "1",
-        vehicleId: req.body.vehicleId
+    const { userId, vehicleId, carName, date, status } = req.body;
+
+    if (!userId || !vehicleId) {
+        return res.status(400).json({ message: "Missing data" });
+    }
+
+    const booking = await Booking.create({
+        userId,
+        vehicleId,
+        carName,
+        date,
+        status: status || "Confirmed"
     });
 
-    res.send("Booked");
+    res.json(booking);
+});
+
+// Get user bookings
+app.get("/my-bookings/:userId", async (req, res) => {
+    try {
+        const bookings = await Booking.find({ userId: req.params.userId }).sort({ _id: -1 });
+        const formatted = bookings.map(b => ({
+            id: b._id,
+            carName: b.carName || "Vehicle Booking",
+            date: b.date || new Date().toLocaleDateString(),
+            status: b.status || "Confirmed"
+        }));
+        res.json(formatted);
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching bookings" });
+    }
 });
 
 // Start server
