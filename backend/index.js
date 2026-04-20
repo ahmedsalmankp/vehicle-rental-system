@@ -23,26 +23,24 @@ async function insertVehicles() {
     await Vehicle.deleteMany({});
 
     await Vehicle.insertMany([
+        { name: "Benz", price: 30000, image: "/cars/benz.avif", location: "Mysore, Karnataka" },
+        { name: "Red Thar", price: 10000, image: "/cars/redthar.avif", location: "Tirupati, Andhra Pradesh" },
         { name: "Honda City", price: 2000, image: "/cars/innova.webp", location: "Hyderabad, Telangana" },
         { name: "Swift", price: 1500, image: "/cars/maruti.avif", location: "Bangalore, Karnataka" },
         { name: "Creta", price: 2500, image: "/cars/brezza.avif", location: "Kochi, Kerala" },
-        { name: "BMW", price: 4000, image: "/cars/bmw.webp", location: "Vijayawada, Andhra Pradesh" },
+        { name: "BMW", price: 40000, image: "/cars/bmw.webp", location: "Vijayawada, Andhra Pradesh" },
         { name: "Audi A6", price: 3500, image: "/cars/Audi-A6.webp", location: "Vizag, Andhra Pradesh" },
-        { name: "Benz", price: 4200, image: "/cars/benz.avif", location: "Mysore, Karnataka" },
-        { name: "Lamborghini", price: 8000, image: "/cars/Lamborghini.webp", location: "Trivandrum, Kerala" },
-        { name: "Thar", price: 3000, image: "/cars/blackthar.webp", location: "Guntur, Andhra Pradesh" },
-        { name: "Rolls Royce", price: 10000, image: "/cars/rollsroyce.avif", location: "Chennai, Tamil Nadu" },
+        { name: "Benz", price: 42000, image: "/cars/benz.avif", location: "Mysore, Karnataka" },
+        { name: "Lamborghini", price: 100000, image: "/cars/Lamborghini.webp", location: "Trivandrum, Kerala" },
+        { name: "Thar", price: 30000, image: "/cars/blackthar.webp", location: "Guntur, Andhra Pradesh" },
+        { name: "Rolls Royce", price: 150000, image: "/cars/rollsroyce.avif", location: "Chennai, Tamil Nadu" },
         { name: "Maruti Omni", price: 800, image: "/cars/omni.avif", location: "Pune, Maharashtra" },
-        { name: "Red Thar", price: 3200, image: "/cars/redthar.avif", location: "Tirupati, Andhra Pradesh" },
-        { name: "Maruti Brezza", price: 2200, image: "/cars/brezza.avif", location: "Delhi" },
-        { name: "Audi A6", price: 3500, image: "/cars/Audi-A6.webp", location: "Ongole, Andhra Pradesh" },
-        { name: "Benz", price: 4200, image: "/cars/benz.avif", location: "Coorg, Karnataka" },
-        { name: "Lamborghini", price: 8000, image: "/cars/Lamborghini.webp", location: "Palakkad, Kerala" },
-        { name: "Thar", price: 3000, image: "/cars/blackthar.webp", location: "Rayachoti, Andhra Pradesh" },
-        { name: "Rolls Royce", price: 10000, image: "/cars/rollsroyce.avif", location: "Coimbatore, Tamil Nadu" },
-        { name: "Maruti Omni", price: 800, image: "/cars/omni.avif", location: "Madanapalli, Andhra Pradesh" },
-        { name: "Red Thar", price: 3200, image: "/cars/redthar.avif", location: "Madanapalli, Andhra Pradesh" },
-        { name: "Maruti Brezza", price: 2200, image: "/cars/brezza.avif", location: "Delhi" }
+        { name: "Red Thar", price: 32000, image: "/cars/redthar.avif", location: "Tirupati, Andhra Pradesh" },
+        { name: "Maruti Brezza", price: 22000, image: "/cars/brezza.avif", location: "Delhi" },
+        { name: "Audi A6", price: 35000, image: "/cars/Audi-A6.webp", location: "Ongole, Andhra Pradesh" },
+        { name: "Benz", price: 42000, image: "/cars/benz.avif", location: "Coorg, Karnataka" },
+        { name: "Thar", price: 30000, image: "/cars/blackthar.webp", location: "Rayachoti, Andhra Pradesh" },
+        { name: "Maruti Omni", price: 800, image: "/cars/omni.avif", location: "Madanapalli, Andhra Pradesh" }
     ]);
 
     console.log("Vehicles inserted ✅");
@@ -65,8 +63,11 @@ app.post("/register", async (req, res) => {
         }
 
         const user = await User.create({
+            fullName: req.body.fullName,
             email: req.body.email,
             password: req.body.password,
+            phoneNumber: req.body.phoneNumber,
+            licenseNumber: req.body.licenseNumber,
             bookings: 0,
             failedPayments: 0
         });
@@ -159,6 +160,19 @@ app.get("/my-bookings/:userId", async (req, res) => {
         res.json(formatted);
     } catch (err) {
         res.status(500).json({ message: "Error fetching bookings" });
+    }
+});
+
+// Get user profile
+app.get("/api/user/profile/:userId", async (req, res) => {
+    try {
+        const user = await User.findById(req.params.userId);
+        if (!user) return res.status(404).json({ message: "User not found" });
+        // Don't send password
+        const { password, ...userWithoutPassword } = user.toObject();
+        res.json(userWithoutPassword);
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching profile" });
     }
 });
 

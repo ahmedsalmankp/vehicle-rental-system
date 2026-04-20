@@ -95,7 +95,7 @@ export default function Navbar() {
                 ) : (
                     <div
                         className="flex items-center gap-2 cursor-pointer group"
-                        onClick={() => router.push("/dashboard")} // Sending back to dashboard as requested, no new pages
+                        onClick={() => router.push("/profile")} // Send to profile page
                     >
                         <svg
                             className="w-10 h-10 p-1.5 rounded-full border-2 border-orange-500 text-orange-500 group-hover:shadow-[0_0_10px_rgba(249,115,22,0.8)] transition bg-orange-50"

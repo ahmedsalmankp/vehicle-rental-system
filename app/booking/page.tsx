@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import Navbar from "../components/Navbar";
 import InputField from "../components/InputField";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 
 interface PastBooking {
     id: string;
@@ -14,11 +14,15 @@ interface PastBooking {
 
 function BookingContent() {
     const searchParams = useSearchParams();
+    const router = useRouter();
     const vehicleId = searchParams.get("vehicleId") || "unspecified";
     const carName = searchParams.get("carName") || "Selected Vehicle";
 
-    const [step, setStep] = useState(1);
+    const initialStep = searchParams.get("step") === "success" ? 2 : 1;
+
+    const [step, setStep] = useState(initialStep);
     const [isLoading, setIsLoading] = useState(false);
+    const [paymentStatus, setPaymentStatus] = useState<"idle" | "processing" | "success" | "failure">("idle");
     const [pastBookings, setPastBookings] = useState<PastBooking[]>([]);
 
     useEffect(() => {
@@ -59,55 +63,13 @@ function BookingContent() {
     };
 
     const handleNext = async () => {
-        setIsLoading(true);
-        if (step === 2) {
-            try {
-                // Real API call to book
-                const user = JSON.parse(sessionStorage.getItem("user") || "{}");
-                const bookingDate = new Date().toLocaleDateString();
+        if (step === 1) {
+            setIsLoading(true);
+            const user = JSON.parse(sessionStorage.getItem("user") || "{}");
+            const userId = user._id || user.id;
 
-                const API_URL = "http://localhost:5000";
-                const res = await fetch(`${API_URL}/book`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ 
-                        userId: user._id || user.id, // Prefer user._id as requested
-                        vehicleId,
-                        carName,
-                        date: bookingDate,
-                        status: "Confirmed"
-                    })
-                });
-
-                if (!res.ok) {
-                    throw new Error("Booking failed");
-                }
-
-                const data = await res.json();
-                const newBooking = {
-                    id: data._id || `BKG-${Math.floor(Math.random() * 10000)}`,
-                    carName: carName,
-                    date: bookingDate,
-                    status: "Confirmed"
-                };
-                const updatedBookings = [newBooking, ...pastBookings];
-                setPastBookings(updatedBookings);
-
-                if (paymentMethod === "upi") {
-                    window.location.href = `upi://pay?pa=business@upi&pn=RentRide`;
-                }
-
-                setStep(step + 1);
-            } catch (err) {
-                alert("Error connecting to server.");
-            } finally {
-                setIsLoading(false);
-            }
-        } else {
-            setTimeout(() => {
-                setIsLoading(false);
-                setStep(step + 1);
-            }, 800);
+            // Route to simulated payment page
+            router.push(`/payment?userId=${userId}&vehicleId=${vehicleId}&carName=${encodeURIComponent(carName)}&method=${paymentMethod}`);
         }
     };
 
@@ -120,36 +82,10 @@ function BookingContent() {
                 <p className="text-gray-500 mt-2">Booking: <span className="font-semibold text-orange-500">{carName}</span></p>
             </div>
 
-            {/* STEP 1 - LICENSE */}
+            {/* STEP 1 - PAYMENT */}
             {step === 1 && (
                 <div className="bg-white p-8 rounded-xl shadow-lg border-t-4 border-orange-500 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <h2 className="text-xl font-bold text-gray-800 mb-6">Step 1: Verify Identity</h2>
-
-                    <InputField
-                        label="Re-upload Driving License for this Booking"
-                        type="file"
-                        name="licenseId"
-                        value={form.licenseId}
-                        onChange={handleChange}
-                        required
-                    />
-
-                    <p className="text-sm text-gray-400 mb-6 italic">We need this to generate your customized trip insurance.</p>
-
-                    <button
-                        onClick={handleNext}
-                        disabled={isLoading}
-                        className="w-full bg-orange-500 text-white font-bold py-3 rounded-md hover:bg-orange-600 transition disabled:opacity-75 flex justify-center items-center"
-                    >
-                        {isLoading ? "Verifying..." : "Proceed to Payment"}
-                    </button>
-                </div>
-            )}
-
-            {/* STEP 2 - PAYMENT */}
-            {step === 2 && (
-                <div className="bg-white p-8 rounded-xl shadow-lg border-t-4 border-orange-500 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <h2 className="text-xl font-bold text-gray-800 mb-6">Step 2: Payment Details</h2>
+                    <h2 className="text-xl font-bold text-gray-800 mb-6">Step 1: Payment Details</h2>
 
                     <div className="flex gap-4 mb-6">
                         <button
@@ -225,15 +161,15 @@ function BookingContent() {
                     <button
                         onClick={handleNext}
                         disabled={isLoading}
-                        className="w-full bg-orange-500 text-white font-bold py-3 rounded-md mt-6 hover:bg-orange-600 transition disabled:opacity-75"
+                        className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-md mt-6 transition disabled:opacity-75 flex justify-center items-center"
                     >
-                        {isLoading ? "Processing..." : "Pay Securely Now"}
+                        {isLoading ? "Redirecting to Gateway..." : "Pay Securely Now"}
                     </button>
                 </div>
             )}
 
-            {/* STEP 3 - SUCCESS */}
-            {step === 3 && (
+            {/* STEP 2 - SUCCESS */}
+            {step === 2 && (
                 <div className="bg-white p-10 rounded-xl shadow-lg border-t-4 border-green-500 text-center animate-in zoom-in duration-500">
                     <div className="text-green-500 text-6xl mb-4">🎉</div>
                     <h2 className="text-3xl font-bold text-gray-800 mb-2">
